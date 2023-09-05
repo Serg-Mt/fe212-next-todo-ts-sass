@@ -1,6 +1,11 @@
 import Item from './Item';
+import { ListType,ByIdCallback } from './item-type';
 
-export default function List({ list, changeCheckedItem, delItem }) {
+export default function List({ list, changeCheckedItem, delItem }: {
+  list: ListType,
+  changeCheckedItem: ByIdCallback,
+  delItem: ByIdCallback
+}) {
   console.debug('List render');
   return <fieldset>
     <legend>List</legend>

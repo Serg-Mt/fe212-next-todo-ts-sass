@@ -1,8 +1,8 @@
 import TodoList from '@/components/todo/TodoList';
-import { newItem } from '@/components/todo/item-type';
+import { newItem, ListType } from '@/components/todo/item-type';
 import Head from 'next/head';
 
-export default function TodoPage({ startList }) {
+export default function TodoPage({ startList }: { startList: ListType }) {
   return <>
     <Head>
       <title>Home</title>
