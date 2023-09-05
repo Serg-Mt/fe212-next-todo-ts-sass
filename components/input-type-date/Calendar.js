@@ -32,7 +32,6 @@ export default memo(function Calendar({ date, onClick }) {
       <Month shift={startShift} max={daysInMonth} selected={date.getDate()} />
     </tbody>
   </table>;
-
 });
 
 function Week({ start, max, selected }) {

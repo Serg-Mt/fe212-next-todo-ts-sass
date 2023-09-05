@@ -1,6 +1,7 @@
 table.calendar{
   font-family: sans-serif;
   padding: 1em;
+  outline: 1px dotted gray;
   /* background-color: antiquewhite; */
 }
 
