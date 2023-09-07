@@ -1,16 +1,15 @@
 import Item from './Item';
 import { ListType,ByIdCallback } from './item-type';
 
-export default function List({ list, changeCheckedItem, delItem }: {
+export default function List({ list, changeCheckedItem }: {
   list: ListType,
-  changeCheckedItem: ByIdCallback,
-  delItem: ByIdCallback
+  changeCheckedItem: ByIdCallback
 }) {
   console.debug('List render');
   return <fieldset>
     <legend>List</legend>
     <ol>
-      {list.map(item => <Item key={item.id} item={item} changeCheckedItem={changeCheckedItem} delItem={delItem} />)}
+      {list.map(item => <Item key={item.id} item={item} changeCheckedItem={changeCheckedItem}  />)}
     </ol>
   </fieldset>;
 }

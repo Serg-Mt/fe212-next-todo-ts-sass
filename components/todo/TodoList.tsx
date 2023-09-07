@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, MouseEventHandler } from 'react';
 import Form from './Form';
 import List from './List';
 import { newItem, ListType, ByIdCallback } from './item-type';
@@ -15,12 +15,20 @@ export default function TodoList({ startList = [] }: { startList: ListType }) {
       // @ts-ignore
       return old.with(index, item);
     }), []),
-    delItem: ByIdCallback = useCallback(id => setList(old => old.filter(item => id !== item.id)), []);
+    // delItem: ByIdCallback = useCallback(id => setList(old => old.filter(item => id !== item.id)), []);
+    delIconClick: MouseEventHandler = event => {
+      const
+        button = (event.target as HTMLElement).closest('button[icon-type=delete]');
+      if (!button) return;
+      const id = (button.closest('li[data-todo-id') as HTMLElement)?.dataset?.todoId;
+      // console.log('id=',id);
+      if (id)
+        setList(old => old.filter(item => +id !== item.id));
+    };
   console.debug('TodoList render');
-  return <fieldset>
+  return <fieldset onClick={delIconClick}>
     <legend>TodoList</legend>
-    {/* @ts-ignore */}
     <Form addClick={addClick} />
-    <List list={list} changeCheckedItem={changeCheckedItem} delItem={delItem} />
+    <List list={list} changeCheckedItem={changeCheckedItem} />
   </fieldset>;
 }

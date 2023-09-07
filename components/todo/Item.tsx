@@ -1,22 +1,20 @@
-import { memo, useCallback } from 'react';
+import { memo } from 'react';
 import Icon from './Icon';
 import { ListItemType, ByIdCallback } from './item-type';
 
 
-export default memo(function Item({ item, changeCheckedItem, delItem }
+export default memo(function Item({ item, changeCheckedItem }
   : {
     item: ListItemType,
-    changeCheckedItem: ByIdCallback,
-    delItem: ByIdCallback
+    changeCheckedItem: ByIdCallback
   }) {
   const
-    { id, checked, text } = item,
-    onClick = useCallback(() => delItem(id), [delItem, id]);
+    { id, checked, text } = item;
 
   console.debug('Item render id=', id);
-  return <li>
+  return <li data-todo-id={id}>
     <input type="checkbox" checked={checked} onChange={() => changeCheckedItem(id)} />
     {text}
-    <Icon onClick={onClick}>❌</Icon>
+    <Icon type='delete'>❌</Icon>
   </li>;
 });

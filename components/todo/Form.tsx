@@ -1,12 +1,13 @@
 import { memo, useState, useCallback, useRef } from 'react';
 import Button from './Button';
 
-export default memo(function Form({ addClick }) {
+export default memo(function Form({ addClick }:
+  { addClick: (_: string) => void }) {
   const
     [value, setValue] = useState('-start-'),
     textRef = useRef(''),
-    onClick = useCallback(() => addClick(textRef.current), [addClick]); 
-    
+    onClick = useCallback(() => addClick(textRef.current), [addClick]);
+
   textRef.current = value;
 
   console.debug('Form render');
