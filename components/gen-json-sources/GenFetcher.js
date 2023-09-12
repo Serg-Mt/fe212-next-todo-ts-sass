@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useState } from 'react';
-import GenTable from './GenTable';
 
-export default function GenFetcher({ fetcher, columns }) {
+
+export default function GenFetcher({ fetcher, children, onLoadCallback }) {
   const
     [data, setData] = useState(null),
     [error, setError] = useState(null);
@@ -10,16 +10,18 @@ export default function GenFetcher({ fetcher, columns }) {
   useEffect(() => {
     async function f() {
       try {
-        setData(await fetcher());
+        const d = await fetcher();
+        setData(d);
+        onLoadCallback(d);
         setError(null);
       } catch (err) {
         setError(err);
       }
     } f();
-  }, [fetcher]);
+  }, [fetcher, onLoadCallback]);
 
   if (error) return <Error error={error} />;
-  if (data) return <GenTable data={data} columns={columns} />;
+  if (data) return <>{children}</>;
   return <Spinner />;
 }
 

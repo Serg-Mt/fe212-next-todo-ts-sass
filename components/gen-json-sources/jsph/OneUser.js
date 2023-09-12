@@ -1,4 +1,4 @@
-export default function OneUser({ user }) {
+export default function OneUser({ data, children }) {
   const
     { id, name, username, email,
       address: { street, suite, city, zipcode, geo: { lat, lng } },
@@ -8,7 +8,7 @@ export default function OneUser({ user }) {
         catchPhrase,
         bs
       }
-    } = user;
+    } = data;
 
   return (
     <>
@@ -19,6 +19,7 @@ export default function OneUser({ user }) {
         <span>🌐<a href={`http://${website}`}>{website}</a></span>
         <span title={zipcode}><a href={`https://maps.google.com/maps?ll=${lat},${lng}`}>{street},{suite},{city}</a></span>
         <span><b>{cname}</b><br />{catchPhrase}<br />{bs}</span>
+        {children}
       </fieldset>
     </>
   );

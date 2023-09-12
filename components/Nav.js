@@ -7,6 +7,7 @@ const pages = [
   { href: '/calendar-demo', name: 'Calendar Demo'},
   { href: '/gentabl/jsph', name: 'JSPH'},
   { href: '/gentabl/rnm', name: 'RnM'},
+  { href: '/gentabl/omdb', name: 'OMDb'},
   // { href: '/about', name: 'About' },
   // { href: '/users', name: 'Users' },
   // { href: '/info', name: 'test FetchUser' },
