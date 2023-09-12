@@ -1,4 +1,5 @@
 import InfoComponent from './OneUser';
+import SubQueryComponent from './OnePost';
 
 const config = {
   columns: [
@@ -20,7 +21,15 @@ const config = {
     if (!response.ok) throw new Error('fetch ' + response.status);
     return await response.json();
   },
-  InfoComponent
+  InfoComponent,
+  async subQueryFetcher(id) {
+    const
+      response = await fetch(`https://jsonplaceholder.typicode.com/users/${id}/posts`);
+    if (!response.ok) throw new Error('fetch ' + response.status);
+    return await response.json();
+    //
+  },
+  SubQueryComponent
 };
 
 export default config;

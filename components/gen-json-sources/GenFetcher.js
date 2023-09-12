@@ -26,9 +26,9 @@ export default function GenFetcher({ fetcher, children, onLoadCallback }) {
 }
 
 function Error({ error }) {
-  return <h2 style={{ color: 'red' }} >Error = {error.toString} </h2>;
+  return <h2 className='error' >{error.toString()} </h2>;
 }
 
 function Spinner() {
-  return <>loading...</>;
+  return <div className='spinner'></div>;
 }

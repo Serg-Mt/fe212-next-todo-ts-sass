@@ -3,7 +3,7 @@ const config = {
   columns: [
     { title: 'Title', getVal: obj => obj.Title },
     { title: 'Year', getVal: ({ Year }) => Year },
-    { title: 'Poster', getVal: ({ Poster }) => <img className='icon' src={Poster} alt={name} /> },
+    { title: 'Poster', getVal: ({ Poster }) => <img src={Poster} alt={name} /> },
   ],
 
   async fetcher() {

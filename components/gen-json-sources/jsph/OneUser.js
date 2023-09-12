@@ -1,3 +1,5 @@
+import {usercard} from './OneUser.module.sass';
+
 export default function OneUser({ data, children }) {
   const
     { id, name, username, email,
@@ -12,7 +14,7 @@ export default function OneUser({ data, children }) {
 
   return (
     <>
-      <fieldset className="user-card">
+      <fieldset className={usercard}>
         <legend>#{id} {username}</legend>
         <h3>{name}</h3>
         <span> 📧<a href={`mailto:${email}`}>{email}</a>📞<a href={`tel:${phone}`}>{phone}</a></span>

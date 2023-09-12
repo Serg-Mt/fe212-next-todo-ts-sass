@@ -1,7 +1,7 @@
 const config = {
   columns: [
     { title: 'Name', getVal: obj => obj.name },
-    { title: 'Image', getVal: ({ image, name }) => <img className='icon' src={image} alt={name} /> },
+    { title: 'Image', getVal: ({ image, name }) => <img src={image} alt={name} /> },
     { title: 'Status', getVal: ({ status }) => status },
   ],
 
