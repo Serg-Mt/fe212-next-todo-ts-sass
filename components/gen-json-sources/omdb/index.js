@@ -1,6 +1,7 @@
 
 const config = {
   columns: [
+    { title: 'Id', getVal: ({ id }) => id },
     { title: 'Title', getVal: obj => obj.Title },
     { title: 'Year', getVal: ({ Year }) => Year },
     { title: 'Poster', getVal: ({ Poster }) => <img src={Poster} alt={name} /> },
