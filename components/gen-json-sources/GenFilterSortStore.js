@@ -2,6 +2,7 @@ import { useState } from 'react';
 import GenTable from './GenTable';
 import GenFetcher from './GenFetcher';
 import { useCallback } from 'react';
+import toast from 'react-hot-toast';
 
 
 function Form({ columns, values, setValues }) {
@@ -21,8 +22,9 @@ function Form({ columns, values, setValues }) {
 }
 
 
-export default function GenFilterSortStore({ config: { fetcher, columns, infoFetcher, InfoComponent, subQueryFetcher, SubQueryComponent } }) {
+export default function GenFilterSortStore({ config: { fetcher, columns, infoFetcher, InfoComponent, subQueryFetcher, SubQueryComponent, API } }) {
   const
+    // [fetcherKey, setFetcherKey] = useState(1),
     [data, setData] = useState(null),
     [filterStr, setFilterStr] = useState(''),
     [sortByColumnN, setSortByColumnN] = useState(null), // number
@@ -51,7 +53,7 @@ export default function GenFilterSortStore({ config: { fetcher, columns, infoFet
     return columns.map(({ getVal }) => getVal(el)).filter(x => 'string' === typeof x).some(x => x.toLowerCase().includes(filterStr.toLowerCase()));
   }
 
-  function onClick(evt) {
+  async function onClick(evt) {
     const
       source = evt.target.closest('button[data-action][data-id]');
     // console.log('source=', source);
@@ -61,6 +63,21 @@ export default function GenFilterSortStore({ config: { fetcher, columns, infoFet
       switch (action) {
         case 'del':
           setData(old => old.filter(el => String(el.id) !== id));
+          // eslint-disable-next-line no-case-declarations
+          const res = fetch(API + id + 100, {
+            method: 'DELETE'
+          }).then(async res => {
+            if (!res.ok) {
+              setData(await fetcher());
+              throw (new Error(res.status + res.statusText));
+            }
+          });
+          toast.promise(res, {
+            loading: 'Deleting...',
+            success: 'ok',
+            error: (err) => `This just happened: ${err.toString()}`
+          });
+          // console.log('DELETE result', req, await req.text());
           return;
         case 'info':
           setPaneInfoId(id);
@@ -82,7 +99,7 @@ export default function GenFilterSortStore({ config: { fetcher, columns, infoFet
           if (editetId) { // edit
             const
               index = data.findIndex((obj) => String(obj.id) === String(editetId)),
-              newObj = {...data[index]};
+              newObj = { ...data[index] };
             columns.forEach(({ setVal }, i) => Object.assign(newObj, setVal?.(values[i])));
             setData(old => old.with(index, newObj));
           } else { // add

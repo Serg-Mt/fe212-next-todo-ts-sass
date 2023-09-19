@@ -1,4 +1,5 @@
 import style from './GenTable.module.sass';
+import { Fragment } from 'react';
 
 export default function GenTable({ data, columns, sortByColumnN, editetId, children }) {
   // console.log('style=', style);
@@ -18,13 +19,13 @@ export default function GenTable({ data, columns, sortByColumnN, editetId, child
     </thead>
     <tbody>
       {data.map(obj =>
-        <>
+        <Fragment key={obj.id}>
           {String(obj.id) === String(editetId)
             ? <>{children}</>
             : <tr key={obj.id}>
               {columns.map(({ title, getVal }) => <td key={title}>{getVal(obj)}</td>)}
             </tr>}
-        </>
+        </Fragment>
       )}
     </tbody>
     <tfoot>
