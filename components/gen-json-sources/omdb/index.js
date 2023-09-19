@@ -1,5 +1,6 @@
-
+const API = 'https://www.omdbapi.com/?apikey=a2b07930&s=green'
 const config = {
+  API,
   columns: [
     { title: 'Id', getVal: ({ id }) => id },
     { title: 'Title', getVal: obj => obj.Title },
@@ -9,7 +10,7 @@ const config = {
 
   async fetcher() {
     const
-      response = await fetch('https://www.omdbapi.com/?apikey=a2b07930&s=green');
+      response = await fetch(API);
     if (!response.ok) throw new Error('fetch ' + response.status);
     return (await response.json()).Search.map(obj => Object.assign(obj, { id: obj.imdbID }));
   }

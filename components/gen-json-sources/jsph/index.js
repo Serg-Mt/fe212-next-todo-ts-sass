@@ -1,5 +1,6 @@
 import InfoComponent from './OneUser';
 import SubQueryComponent from './OnePost';
+import toast from 'react-hot-toast';
 
 const API = 'http://localhost:3333/users/';
 
@@ -14,7 +15,14 @@ const config = {
   ],
   async fetcher() {
     const
-      response = await fetch(API);
+      pr = fetch(API);
+    toast.promise(pr, {
+      loading: 'jsph fetcher',
+      success: 'ok',
+      error:  (err) => `This just happened: ${err.toString()}`
+    },{position: 'top-rigth'});
+    const
+      response = await pr;
     if (!response.ok) throw new Error('fetch ' + response.status);
     return await response.json();
   },

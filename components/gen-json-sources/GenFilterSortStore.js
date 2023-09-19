@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import GenTable from './GenTable';
-import GenFetcher from './GenFetcher';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import toast from 'react-hot-toast';
+import GenFetcher from './GenFetcher';
+import GenTable from './GenTable';
+import useSWR from 'swr';
 
 
 function Form({ columns, values, setValues }) {
@@ -24,8 +24,9 @@ function Form({ columns, values, setValues }) {
 
 export default function GenFilterSortStore({ config: { fetcher, columns, infoFetcher, InfoComponent, subQueryFetcher, SubQueryComponent, API } }) {
   const
+    { data, error, isLoading, isValidating, mutate } = useSWR(API, fetcher),
     // [fetcherKey, setFetcherKey] = useState(1),
-    [data, setData] = useState(null),
+    // [data, setData] = useState(null),
     [filterStr, setFilterStr] = useState(''),
     [sortByColumnN, setSortByColumnN] = useState(null), // number
     [editetId, setEditetId] = useState(null),
@@ -60,25 +61,65 @@ export default function GenFilterSortStore({ config: { fetcher, columns, infoFet
     if (source) {
       const { id, action } = source.dataset;
       // console.log({ id, action });
+      let optimisticData;
+      const
+        promise = (() => {
+          switch (action) {
+            case 'del':
+              optimisticData = data.filter(el => String(el.id) !== id);
+              return fetch(API + id, { method: 'DELETE' })
+                .then(async res => {
+                  if (!res.ok) {
+                    throw (new Error(res.status + ' ' + res.statusText));
+                  }
+                });
+            case 'ok':
+              if (editetId) { // edit
+              } else { // add
+                const newObj = { id: Math.random(), address: {} };
+                columns.forEach(({ setVal }, index) => Object.assign(newObj, setVal?.(values[index])));
+                optimisticData = data.concat(newObj);
+                return fetch(API,
+                  {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newObj)
+                  })
+                  .then(async res => {
+                    if (!res.ok) {
+                      throw (new Error(res.status + ' ' + res.statusText));
+                    }
+                  });
+
+
+              }
+          }
+        })();
+      toast.promise(promise, {
+        loading: 'Fetching ' + action,
+        success: 'ok',
+        error: (err) => `${err.toString()}`,
+      });
+      await mutate(promise.then(fetcher, fetcher), { optimisticData, populateCache: true, revalidate: false });
       switch (action) {
-        case 'del':
-          setData(old => old.filter(el => String(el.id) !== id));
-          // eslint-disable-next-line no-case-declarations
-          const res = fetch(API + id + 100, {
-            method: 'DELETE'
-          }).then(async res => {
-            if (!res.ok) {
-              setData(await fetcher());
-              throw (new Error(res.status + res.statusText));
-            }
-          });
-          toast.promise(res, {
-            loading: 'Deleting...',
-            success: 'ok',
-            error: (err) => `This just happened: ${err.toString()}`
-          });
-          // console.log('DELETE result', req, await req.text());
-          return;
+        // case 'del':
+        //   setData(old => old.filter(el => String(el.id) !== id));
+        //   // eslint-disable-next-line no-case-declarations
+        //   const res = fetch(API + id + 100, {
+        //     method: 'DELETE'
+        //   }).then(async res => {
+        //     if (!res.ok) {
+        //       setData(await fetcher());
+        //       throw (new Error(res.status + res.statusText));
+        //     }
+        //   });
+        //   toast.promise(res, {
+        //     loading: 'Deleting...',
+        //     success: 'ok',
+        //     error: (err) => `This just happened: ${err.toString()}`
+        //   });
+        //   // console.log('DELETE result', req, await req.text());
+        //   return;
         case 'info':
           setPaneInfoId(id);
           setPanelSubQueryId(null);
@@ -86,31 +127,31 @@ export default function GenFilterSortStore({ config: { fetcher, columns, infoFet
         case 'subquery':
           setPanelSubQueryId(id);
           return;
-        case 'edit':
-          setEditetId(id);
-          const index = data.findIndex((obj) => String(obj.id) === String(id));
-          setValues(columns.map(({ setVal, getVal }) => setVal ? getVal(data[index]) : '-'));
-          return;
+        // case 'edit':
+        //   setEditetId(id);
+        //   const index = data.findIndex((obj) => String(obj.id) === String(id));
+        //   setValues(columns.map(({ setVal, getVal }) => setVal ? getVal(data[index]) : '-'));
+        //   return;
         case 'cancel':
           setEditetId(null);
           setValues(columns.map(() => '_'));
           return;
-        case 'ok':
-          if (editetId) { // edit
-            const
-              index = data.findIndex((obj) => String(obj.id) === String(editetId)),
-              newObj = { ...data[index] };
-            columns.forEach(({ setVal }, i) => Object.assign(newObj, setVal?.(values[i])));
-            setData(old => old.with(index, newObj));
-          } else { // add
-            const newObj = { id: Math.random(), address: {} };
-            columns.forEach(({ setVal }, index) => Object.assign(newObj, setVal?.(values[index])));
-            setData(data.concat(newObj));
-          }
-          setEditetId(null);
-          setValues(columns.map(() => '+'));
+        // case 'ok':
+        //   if (editetId) { // edit
+        //     const
+        //       index = data.findIndex((obj) => String(obj.id) === String(editetId)),
+        //       newObj = { ...data[index] };
+        //     columns.forEach(({ setVal }, i) => Object.assign(newObj, setVal?.(values[i])));
+        //     setData(old => old.with(index, newObj));
+        //   } else { // add
+        //     const newObj = { id: Math.random(), address: {} };
+        //     columns.forEach(({ setVal }, index) => Object.assign(newObj, setVal?.(values[index])));
+        //     setData(data.concat(newObj));
+        //   }
+        //   setEditetId(null);
+        //   setValues(columns.map(() => '+'));
       }
-      return;
+      return; // ?????????????????
     }
     const
       th = evt.target.closest('thead th');
@@ -136,11 +177,14 @@ export default function GenFilterSortStore({ config: { fetcher, columns, infoFet
 
   return <div onClick={onClick}>
     <input value={filterStr} onInput={evt => setFilterStr(evt.target.value)} />
-    <GenFetcher fetcher={fetcher} onLoadCallback={setData}>
-      <GenTable data={data?.filter(filterObjects)} columns={columnsWithButtons} sortByColumnN={sortByColumnN} editetId={editetId}>
-        <Form columns={columns} values={values} setValues={setValues} />
-      </GenTable>
-    </GenFetcher>
+    <div style={{ position: 'absolute', fontSize: 'xxx-large' }}>
+      {isLoading && <>⌛</>}
+      {isValidating && <>👁</>}
+    </div>
+    {error && <>Error {error.toString()}</>}
+    {data && <GenTable data={data?.filter(filterObjects)} columns={columnsWithButtons} sortByColumnN={sortByColumnN} editetId={editetId}>
+      <Form columns={columns} values={values} setValues={setValues} />
+    </GenTable>}
     <hr />
     {paneInfoId &&
       <GenFetcher fetcher={panelInfoFetcher} onLoadCallback={setPaneInfoData}>
