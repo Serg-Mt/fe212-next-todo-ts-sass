@@ -74,11 +74,32 @@ export default function GenFilterSortStore({ config: { fetcher, columns, infoFet
                   }
                 });
             case 'ok':
+              setEditetId(null);
               if (editetId) { // edit
+                const
+                  index = data.findIndex((obj) => String(obj.id) === String(editetId)),
+                  newObj = { ...data[index] };
+                columns.forEach(({ setVal }, i) => Object.assign(newObj, setVal?.(values[i])));
+                optimisticData = data.with(index, newObj);
+                setValues(columns.map(() => ''));
+                return fetch(API + editetId,
+                  {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newObj)
+                  })
+                  .then(async res => {
+                    if (!res.ok) {
+                      throw (new Error(res.status + ' ' + res.statusText));
+                    }
+                  });
+
+                // eslint-disable-next-line no-else-return
               } else { // add
                 const newObj = { id: Math.random(), address: {} };
                 columns.forEach(({ setVal }, index) => Object.assign(newObj, setVal?.(values[index])));
                 optimisticData = data.concat(newObj);
+                setValues(columns.map(() => '+'));
                 return fetch(API,
                   {
                     method: 'POST',
@@ -91,16 +112,17 @@ export default function GenFilterSortStore({ config: { fetcher, columns, infoFet
                     }
                   });
 
-
               }
           }
         })();
-      toast.promise(promise, {
-        loading: 'Fetching ' + action,
-        success: 'ok',
-        error: (err) => `${err.toString()}`,
-      });
-      await mutate(promise.then(fetcher, fetcher), { optimisticData, populateCache: true, revalidate: false });
+      if (promise) {
+        toast.promise(promise, {
+          loading: 'Fetching ' + action,
+          success: 'ok',
+          error: (err) => `${err.toString()}`,
+        });
+        await mutate(promise.then(fetcher, fetcher), { optimisticData, populateCache: true, revalidate: false });
+      }
       switch (action) {
         // case 'del':
         //   setData(old => old.filter(el => String(el.id) !== id));
@@ -127,11 +149,11 @@ export default function GenFilterSortStore({ config: { fetcher, columns, infoFet
         case 'subquery':
           setPanelSubQueryId(id);
           return;
-        // case 'edit':
-        //   setEditetId(id);
-        //   const index = data.findIndex((obj) => String(obj.id) === String(id));
-        //   setValues(columns.map(({ setVal, getVal }) => setVal ? getVal(data[index]) : '-'));
-        //   return;
+        case 'edit':
+          setEditetId(id);
+          const index = data.findIndex((obj) => String(obj.id) === String(id));
+          setValues(columns.map(({ setVal, getVal }) => setVal ? getVal(data[index]) : '-'));
+          return;
         case 'cancel':
           setEditetId(null);
           setValues(columns.map(() => '_'));
